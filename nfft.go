@@ -23,17 +23,15 @@ func Prepare(n int) NFFT { //n: power of two
 	h := n >> 1
 	t := 1
 	for k := range e {
-		E := make([]complex128, n)
-		I := make([]int, n)
+		E := make([]complex128, h)
+		I := make([]int, h)
 		s >>= 1
 		c := 0
 		for b := 0; b < s; b++ {
 			o := 2 * b * t
 			for j := 0; j < t; j++ {
 				I[c] = j + o
-				I[c+h] = j + o + t
 				E[c] = r[s*j]
-				E[c+h] = r[s*(j+t)]
 				c++
 			}
 		}
@@ -44,18 +42,16 @@ func Prepare(n int) NFFT { //n: power of two
 	return NFFT{n: n, h: h, l: l, p: p, e: e, i: i}
 }
 func (f NFFT) Complex(x []complex128) {
-	h := f.h
 	for i, el := range f.e {
 		l := f.i[i]
 		for k := 0; k < f.h; k++ {
 			ii := l[k]
-			jj := l[h+k]
-			//xi := x[ii]
-			//xj := x[jj]
-			//x[ii] += xj * el[k]
-			//x[jj] = xi + xj*el[k+h]
-			x[ii], x[jj] = x[ii] + x[jj] * el[k], x[ii]+x[jj]*el[k+h]
-			//x[jj] = xi + xj*el[k+h]
+			jj := i+ii
+			xi := x[ii]
+			xj := x[jj]
+			ek := el[k]
+			x[ii] += xj * ek
+			x[jj] = xi - xj*ek
 		}
 	}
 }
