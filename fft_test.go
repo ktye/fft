@@ -34,7 +34,7 @@ func TestFFT(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	faster := Prepare(N)
+	faster := Prepare(uint16(N))
 
 	y1 := slow.Transform(copyVector(x))
 	y2 := slowPre.Transform(copyVector(x))
@@ -50,6 +50,7 @@ func TestFFT(t *testing.T) {
 	}
 }
 
+/*
 func BenchmarkSlow000(t *testing.B) {
 	N := 8192
 
@@ -71,6 +72,7 @@ func BenchmarkSlowPre(t *testing.B) {
 		_ = slowPre.Transform(x)
 	}
 }
+*/
 
 func BenchmarkFast000(t *testing.B) {
 	N := 8192
@@ -87,10 +89,10 @@ func BenchmarkFast000(t *testing.B) {
 }
 
 func BenchmarkFaster0(t *testing.B) {
-	N := 8192
+	N := uint16(8192)
 
 	faster := Prepare(N)
-	x := complexRand(N)
+	x := complexRand(int(N))
 
 	for i := 0; i < t.N; i++ {
 		faster.Complex(copyVector(x))
