@@ -10,7 +10,6 @@ type NFFT struct {
 	p       []uint16
 	e       [][]complex128
 	i       [][]uint16
-	z       []complex128
 }
 
 func Prepare(n uint16) NFFT { //n: power of two
@@ -46,7 +45,7 @@ func (f NFFT) Complex(x []complex128) {
 		l := f.i[i]
 		for k := uint16(0); k < f.h; k++ {
 			ii := l[k]
-			jj := uint16(i)+ii
+			jj := uint16(i) + ii
 			xi := x[ii]
 			xj := x[jj]
 			ek := el[k]
@@ -54,6 +53,18 @@ func (f NFFT) Complex(x []complex128) {
 			x[jj] = xi - xj*ek
 		}
 	}
+}
+func (f NFFT) Real2(x, y []float64, out []complex128) {
+	for i := uint16(0); i < f.n; i++ {
+		out[i] = complex(x[i], y[i])
+	}
+	f.Complex(out)
+	// X, Y (complex) from real2:
+	//for i := uint16(0); i<f.n; i++ {
+	//	k := f.n - i
+	//	X[i] = 0.5*(out[i] + out[k])
+	//	Y[i] = 0.5*(out[i] - out[k]) // factor -i omitted
+	//}
 }
 func perm(n uint16) []uint16 {
 	r := make([]uint16, n)
