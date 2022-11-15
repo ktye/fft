@@ -41,17 +41,20 @@ func Prepare(n uint16) NFFT { //n: power of two
 	return NFFT{n: n, h: h, l: l, p: p, e: e, i: i}
 }
 func (f NFFT) Complex(x []complex128) {
+	brswap(x, f.p)
+	s := uint16(1)
 	for i, el := range f.e {
 		l := f.i[i]
 		for k := uint16(0); k < f.h; k++ {
 			ii := l[k]
-			jj := uint16(i) + ii
+			jj := ii + s
 			xi := x[ii]
 			xj := x[jj]
 			ek := el[k]
 			x[ii] += xj * ek
 			x[jj] = xi - xj*ek
 		}
+		s <<= 1
 	}
 }
 func (f NFFT) Real2(x, y []float64, out []complex128) {
@@ -65,6 +68,13 @@ func (f NFFT) Real2(x, y []float64, out []complex128) {
 	//	X[i] = 0.5*(out[i] + out[k])
 	//	Y[i] = 0.5*(out[i] - out[k]) // factor -i omitted
 	//}
+}
+func brswap(x []complex128, p []uint16) {
+	for i := range p {
+		if k := p[i]; i < int(k) {
+			x[i], x[k] = x[k], x[i]
+		}
+	}
 }
 func perm(n uint16) []uint16 {
 	r := make([]uint16, n)

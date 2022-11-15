@@ -47,6 +47,25 @@ func TestFFT(t *testing.T) {
 		if e := cmplx.Abs(y1[i] - y3[i]); e > 1E-9 {
 			t.Errorf("slow and fast differ: i=%d diff=%v\n", i, e)
 		}
+		if e := cmplx.Abs(y1[i] - y4[i]); e > 1E-9 {
+			t.Errorf("slow and faster differ: i=%d diff=%v\n", i, e)
+		}
+	}
+}
+
+func TestBrswap(t *testing.T) {
+	n := uint16(16)
+	p := perm(n)
+	f := Prepare(n)
+	x := make([]complex128, n)
+	for i := uint16(0); i<n; i++ {
+		x[i] = complex(float64(i), 0)
+	}
+	brswap(x, f.p)
+	for i := range x {
+		if complex(float64(p[i]), 0) != x[i] {
+			t.Fatal("brswap")
+		}
 	}
 }
 
