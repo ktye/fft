@@ -75,11 +75,8 @@ func (f FFT) Transform(x []complex128) []complex128 {
 		panic("Input dimension mismatches: FFT is not initialized, or called with wrong input.")
 	}
 
-	// Reorder the input array.
-	// bitReversalPermutation(x, f.p)
-	f.inputPermutation(x)
+	inputPermutation(x, f.perm)
 
-	// Do the butterfly with index i and j.
 	butterfly := func(k, o, l, s int) {
 		i := k + o
 		j := i + l
@@ -87,18 +84,16 @@ func (f FFT) Transform(x []complex128) []complex128 {
 	}
 
 	n := 1
-	s := f.N // Stride
+	s := f.N
 	for p := 1; p <= f.p; p++ {
-		n <<= 1
 		s >>= 1
-		B := f.N / n // Number of blocks.
-		for b := 0; b < B; b++ {
-			K := f.N / (2 * B) // Half block length.
-			o := 2 * b * K     // Block offset.
-			for k := 0; k < K; k++ {
-				butterfly(k, o, K, s)
+		for b := 0; b < s; b++ {
+			o := 2 * b * n
+			for k := 0; k < n; k++ {
+				butterfly(k, o, n, s)
 			}
 		}
+		n <<= 1
 	}
 	return x
 }
@@ -148,11 +143,11 @@ func permutationIndex(P int) []int {
 
 // inputPermutation permutes the input vector in the order
 // needed for the transformation.
-func (f FFT) inputPermutation(x []complex128) {
-	y := make([]complex128, len(x))
-	copy(y, x)
-	for i := 0; i < f.N; i++ {
-		x[i] = y[f.perm[i]]
+func inputPermutation(x []complex128, p []int) {
+	for i := range p {
+		if k := p[i]; i < k {
+			x[i], x[k] = x[k], x[i]
+		}
 	}
 }
 
