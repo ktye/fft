@@ -1,0 +1,3 @@
+go build unroll.go
+./unroll 3 > x.c
+gcc x.c
